@@ -1,0 +1,60 @@
+# robot_localization EKF — fuse RealSense visual odometry (position) + pelvis BNO055 (orientation).
+#
+# State / config-vector order (15 elements):
+#   [ x,  y,  z,
+#     roll, pitch, yaw,
+#     vx, vy, vz,
+#     vroll, vpitch, vyaw,
+#     ax, ay, az ]
+#
+# Strategy:
+#   - odom0 (/vo/odom, rgbd_odometry): trust POSITION x,y,z only. Orientation is owned by the IMU.
+#   - imu0 (/pelvis/imu, BNO055):      trust ORIENTATION roll,pitch,yaw + angular velocity.
+#   - Linear acceleration is OFF initially (BNO055 fused-topic accel framing is error-prone).
+ekf_filter_node:
+  ros__parameters:
+    frequency: 30.0
+    sensor_timeout: 0.1
+    two_d_mode: false
+    transform_time_offset: 0.0
+    transform_timeout: 0.0
+    print_diagnostics: true
+    debug: false
+
+    publish_tf: true
+    publish_acceleration: false
+
+    map_frame: map            # unused with a single EKF
+    odom_frame: odom
+    base_link_frame: base_link
+    world_frame: odom         # single EKF => world == odom (allowed to drift)
+
+    # --- Visual odometry: position only ---
+    odom0: /vo/odom
+    odom0_config: [true,  true,  true,
+                   false, false, false,
+                   false, false, false,
+                   false, false, false,
+                   false, false, false]
+    odom0_differential: false
+    odom0_relative: false
+    odom0_queue_size: 10
+    # Loosely reject large VO jumps (texture-poor frames). Tune as needed.
+    odom0_pose_rejection_threshold: 5.0
+
+    # --- BNO055 pelvis IMU: orientation + angular velocity ---
+    imu0: /pelvis/imu
+    imu0_config: [false, false, false,
+                  true,  true,  true,
+                  false, false, false,
+                  true,  true,  true,
+                  false, false, false]
+    imu0_differential: false
+    imu0_relative: false
+    imu0_queue_size: 10
+    imu0_remove_gravitational_acceleration: true   # only matters if accel is later enabled
+    # If the IMU heading fights the VO, lower this to reject bad orientation updates.
+    imu0_pose_rejection_threshold: 0.8
+
+    # Process noise / initial covariance: start from robot_localization defaults.
+    # Leave commented to use built-in defaults; tune here if the estimate is too stiff/loose.

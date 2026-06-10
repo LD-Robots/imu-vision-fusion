@@ -1,0 +1,19 @@
+# rtabmap_odom / rgbd_odometry parameters.
+# Node is launched with name "rgbd_odometry" (no namespace) so this top key matches.
+#
+# IMPORTANT: publish_tf=false so the EKF is the SOLE owner of odom -> base_link.
+# rgbd_odometry only outputs the nav_msgs/Odometry message on /vo/odom.
+rgbd_odometry:
+  ros__parameters:
+    frame_id: camera_link        # frame the odometry is computed for (RealSense base frame)
+    odom_frame_id: odom
+    publish_tf: false
+    publish_null_when_lost: true # emit a null odom on tracking loss so the EKF coasts cleanly
+    approx_sync: true            # tolerate minor color/aligned-depth stamp skew
+    wait_imu_to_init: false      # cam IMU not used (pelvis BNO055 owns orientation)
+    queue_size: 10
+    # qos: 1                     # uncomment + tune if image topics are best-effort (see README)
+    # --- RTAB-Map core odometry tuning (optional) ---
+    # Odom/Strategy: "0"         # 0=Frame-to-Map (F2M, default), 1=Frame-to-Frame
+    # Vis/MaxFeatures: "1000"
+    # Odom/ResetCountdown: "1"   # auto-reset after N consecutive lost frames

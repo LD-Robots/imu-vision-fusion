@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>imu_vision_fusion_bringup</name>
+  <version>0.1.0</version>
+  <description>
+    Config-only bringup for fusing the pelvis BNO055 IMU (/pelvis/imu, ROS_DOMAIN_ID 52)
+    with Intel RealSense D435i RGB-D visual odometry via a robot_localization EKF.
+  </description>
+  <maintainer email="andrei.dragomir@ldrobots.ro">Andrei Dragomir</maintainer>
+  <license>Proprietary</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <exec_depend>realsense2_camera</exec_depend>
+  <exec_depend>rtabmap_odom</exec_depend>
+  <exec_depend>robot_localization</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

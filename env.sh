@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Source before launching: sets the domain so the pelvis BNO055 (/pelvis/imu) is visible,
+# pins Cyclone DDS to match the Jetson, and overlays this workspace if built.
+#
+#   source env.sh
+#
+export ROS_DOMAIN_ID=52
+export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+
+source /opt/ros/jazzy/setup.bash
+
+_WS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "${_WS_DIR}/install/setup.bash" ]; then
+  source "${_WS_DIR}/install/setup.bash"
+fi
+unset _WS_DIR
