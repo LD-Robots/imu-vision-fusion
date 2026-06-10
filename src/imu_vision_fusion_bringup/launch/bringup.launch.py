@@ -59,8 +59,16 @@ def generate_launch_description():
         # /odometry/filtered is the default output topic.
     )
 
-    # --- Static transforms (TODO: replace zeros with MEASURED mounting offsets) ---
+    # --- Static transforms ---
     # args: --x --y --z --roll --pitch --yaw --frame-id <parent> --child-frame-id <child>
+    #
+    # ROTATIONS matter (they must match the real sensor mounting, or the IMU and VO
+    # headings disagree and the EKF fights itself). TRANSLATIONS are not critical for this
+    # loosely-coupled EKF (no rigorous lever-arm compensation) -- rough/zero is fine; the
+    # constant offset only shifts where base_link sits.
+
+    # BNO055 pelvis IMU. If the chip is mounted aligned with base_link axes, leave the
+    # rotation at zero; otherwise set roll/pitch/yaw to its actual mounting orientation.
     tf_base_to_pelvis = Node(
         package="tf2_ros",
         executable="static_transform_publisher",
@@ -72,13 +80,15 @@ def generate_launch_description():
         ],
     )
 
+    # RealSense D435i mounted UPSIDE DOWN -> 180 deg roll about the forward axis.
+    # (If the camera also faces backward/sideways, add yaw accordingly.)
     tf_base_to_camera = Node(
         package="tf2_ros",
         executable="static_transform_publisher",
         name="static_tf_base_to_camera",
         arguments=[
             "--x", "0", "--y", "0", "--z", "0",
-            "--roll", "0", "--pitch", "0", "--yaw", "0",
+            "--roll", "3.14159", "--pitch", "0", "--yaw", "0",
             "--frame-id", "base_link", "--child-frame-id", "camera_link",
         ],
     )
