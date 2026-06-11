@@ -61,14 +61,14 @@ def generate_launch_description():
     )
 
     # --- Static transforms ---
-    # BNO055 pelvis IMU (same as RealSense bringup): IMU X->left, Y->up, Z->front.
+    # BNO055 pelvis IMU (same as RealSense bringup): IMU X->up, Y->right, Z->front.
     tf_base_to_pelvis = Node(
         package="tf2_ros",
         executable="static_transform_publisher",
         name="static_tf_base_to_pelvis",
         arguments=[
             "--x", "0", "--y", "0", "--z", "0",
-            "--roll", "1.5708", "--pitch", "0", "--yaw", "1.5708",
+            "--roll", "1.5708", "--pitch", "-1.5708", "--yaw", "1.5708",
             "--frame-id", "base_link", "--child-frame-id", "pelvis_link",
         ],
     )

@@ -67,19 +67,17 @@ def generate_launch_description():
     # loosely-coupled EKF (no rigorous lever-arm compensation) -- rough/zero is fine; the
     # constant offset only shifts where base_link sits.
 
-    # BNO055 pelvis IMU mounting (corrected from rig test: pitch/yaw were swapped).
+    # BNO055 pelvis IMU mounting (board face forward, X axis up).
     # IMU axes vs base_link (X-fwd, Y-left, Z-up):
-    #   IMU X -> left (base +Y),  IMU Y -> up (base +Z),  IMU Z -> front (base +X).
-    # That rotation is roll=pi/2, pitch=0, yaw=pi/2.
-    # If the vertical sense is inverted (tilt-forward reads as tilt-back), flip both signs:
-    #   roll=-1.5708, yaw=-1.5708  (i.e. IMU X->right, IMU Y->down).
+    #   IMU X -> up (base +Z),  IMU Y -> right (base -Y),  IMU Z -> front (base +X).
+    # That rotation is roll=pi/2, pitch=-pi/2, yaw=pi/2.
     tf_base_to_pelvis = Node(
         package="tf2_ros",
         executable="static_transform_publisher",
         name="static_tf_base_to_pelvis",
         arguments=[
             "--x", "0", "--y", "0", "--z", "0",
-            "--roll", "1.5708", "--pitch", "0", "--yaw", "1.5708",
+            "--roll", "1.5708", "--pitch", "-1.5708", "--yaw", "1.5708",
             "--frame-id", "base_link", "--child-frame-id", "pelvis_link",
         ],
     )
