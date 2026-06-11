@@ -74,12 +74,16 @@ def generate_launch_description():
     )
 
     # Orbbec mounted CORRECTLY -> identity rotation (no flip).
+    # TRANSLATION matters: rgbd_odometry runs with frame_id=base_link and uses this
+    # lever arm to separate camera arc motion (from body pitch/yaw) from real base
+    # translation. Camera is 0.88 m above the pelvis; add --x if the lens sits
+    # noticeably forward of the pelvis center.
     tf_base_to_camera = Node(
         package="tf2_ros",
         executable="static_transform_publisher",
         name="static_tf_base_to_camera",
         arguments=[
-            "--x", "0", "--y", "0", "--z", "0",
+            "--x", "0", "--y", "0", "--z", "0.88",
             "--roll", "0", "--pitch", "0", "--yaw", "0",
             "--frame-id", "base_link", "--child-frame-id", "camera_link",
         ],

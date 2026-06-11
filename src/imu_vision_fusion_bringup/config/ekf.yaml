@@ -16,6 +16,14 @@ ekf_filter_node:
     frequency: 100.0
     sensor_timeout: 0.1
     two_d_mode: false
+    # Extrapolate the published state to "now" instead of the last measurement stamp.
+    predict_to_current_time: true
+    # VO poses arrive stamped 30-100 ms in the past; re-insert them at the correct
+    # historical time and replay the filter forward.
+    smooth_lagged_data: true
+    history_length: 0.5
+    # Scale process noise with velocity: calm when standing, responsive when walking.
+    dynamic_process_noise_covariance: true
     transform_time_offset: 0.0
     transform_timeout: 0.0
     print_diagnostics: true
@@ -55,8 +63,9 @@ ekf_filter_node:
     imu0_relative: true
     imu0_queue_size: 10
     imu0_remove_gravitational_acceleration: true   # only matters if accel is later enabled
-    # If the IMU heading fights the VO, lower this to reject bad orientation updates.
-    imu0_pose_rejection_threshold: 0.8
+    # Loose gate on purpose: a tight one rejects the large genuine tilts of
+    # stumbles/falls, which is exactly when orientation must be believed.
+    imu0_pose_rejection_threshold: 3.0
 
     # Process noise / initial covariance: start from robot_localization defaults.
     # Leave commented to use built-in defaults; tune here if the estimate is too stiff/loose.

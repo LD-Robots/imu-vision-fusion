@@ -63,9 +63,10 @@ def generate_launch_description():
     # args: --x --y --z --roll --pitch --yaw --frame-id <parent> --child-frame-id <child>
     #
     # ROTATIONS matter (they must match the real sensor mounting, or the IMU and VO
-    # headings disagree and the EKF fights itself). TRANSLATIONS are not critical for this
-    # loosely-coupled EKF (no rigorous lever-arm compensation) -- rough/zero is fine; the
-    # constant offset only shifts where base_link sits.
+    # headings disagree and the EKF fights itself). The CAMERA TRANSLATION also matters:
+    # rgbd_odometry runs with frame_id=base_link and uses the base->camera lever arm to
+    # separate camera arc motion (from body pitch/yaw) from real base translation.
+    # The IMU translation is still non-critical (only orientation + gyro are fused).
 
     # BNO055 pelvis IMU mounting (board face forward, X axis up).
     # IMU axes vs base_link (X-fwd, Y-left, Z-up):
@@ -89,7 +90,7 @@ def generate_launch_description():
         executable="static_transform_publisher",
         name="static_tf_base_to_camera",
         arguments=[
-            "--x", "0", "--y", "0", "--z", "0",
+            "--x", "0", "--y", "0", "--z", "0.88",
             "--roll", "3.14159", "--pitch", "0", "--yaw", "0",
             "--frame-id", "base_link", "--child-frame-id", "camera_link",
         ],
