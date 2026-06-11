@@ -8,7 +8,8 @@
 #     ax, ay, az ]
 #
 # Strategy:
-#   - odom0 (/vo/odom, rgbd_odometry): trust POSITION x,y,z only. Orientation is owned by the IMU.
+#   - odom0 (/vo/odom, rgbd_odometry): trust LINEAR VELOCITY vx,vy,vz only (body frame).
+#     Position is deliberately unobserved -- it drifts, but only velocity feeds the policy.
 #   - imu0 (/pelvis/imu, BNO055):      trust ORIENTATION roll,pitch,yaw + angular velocity.
 #   - Linear acceleration is OFF initially (BNO055 fused-topic accel framing is error-prone).
 ekf_filter_node:
@@ -37,18 +38,20 @@ ekf_filter_node:
     base_link_frame: base_link
     world_frame: odom         # single EKF => world == odom (allowed to drift)
 
-    # --- Visual odometry: position only ---
+    # --- Visual odometry: body-frame linear velocity only ---
+    # Twist is reported in child_frame_id (base_link), so it is immune to odom-frame
+    # alignment, startup yaw, and VO-reset position jumps.
     odom0: /vo/odom
-    odom0_config: [true,  true,  true,
+    odom0_config: [false, false, false,
                    false, false, false,
-                   false, false, false,
+                   true,  true,  true,
                    false, false, false,
                    false, false, false]
     odom0_differential: false
     odom0_relative: false
     odom0_queue_size: 10
-    # Loosely reject large VO jumps (texture-poor frames). Tune as needed.
-    odom0_pose_rejection_threshold: 5.0
+    # Loosely reject large VO velocity spikes (texture-poor frames). Tune as needed.
+    odom0_twist_rejection_threshold: 5.0
 
     # --- BNO055 pelvis IMU: orientation + angular velocity ---
     imu0: /pelvis/imu

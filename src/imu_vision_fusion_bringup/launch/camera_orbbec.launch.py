@@ -32,6 +32,13 @@ def generate_launch_description():
             "depth_registration": "true",        # align depth to color (rgbd_odometry needs this)
             "enable_color": "true",
             "enable_depth": "true",
+            # 15 fps: rgbd_odometry needs ~40 ms/frame, so 30 fps input builds a multi-
+            # second backlog (seen as delay=2.2s in the odom log). 15 fps leaves headroom.
+            "color_fps": "15",
+            "depth_fps": "15",
+            # Capture depth+color at the same instant so their stamps match (kills the
+            # "time difference between rgb and depth frames is high" warning).
+            "enable_frame_sync": "true",
             "enable_point_cloud": "false",
             "enable_colored_point_cloud": "false",
             "enable_accel": "false",             # cam IMU unused

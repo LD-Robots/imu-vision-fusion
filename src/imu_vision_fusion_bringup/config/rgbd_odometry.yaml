@@ -11,6 +11,7 @@ rgbd_odometry:
     publish_tf: false
     publish_null_when_lost: true # emit a null odom on tracking loss so the EKF coasts cleanly
     approx_sync: true            # tolerate minor color/aligned-depth stamp skew
+    approx_sync_max_interval: 0.02  # reject pairs >20 ms apart (one-frame mispairs)
     wait_imu_to_init: false      # cam IMU not used (pelvis BNO055 owns orientation)
     queue_size: 10
     # qos: 1                     # uncomment + tune if image topics are best-effort (see README)

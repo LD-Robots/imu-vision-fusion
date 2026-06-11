@@ -4,7 +4,7 @@ Same pipeline as bringup.launch.py but with the Orbbec camera instead of the Rea
     orbbec_camera (Gemini 336L, depth aligned to color)
         -> rgbd_odometry  -> /vo/odom  (publish_tf=false)
         -> ekf_filter_node (robot_localization)
-             odom0 = /vo/odom    (position x,y,z)
+             odom0 = /vo/odom    (body-frame linear velocity vx,vy,vz)
              imu0  = /pelvis/imu (orientation + angular velocity, BNO055 on domain 52)
              => /odometry/filtered  +  tf odom -> base_link
 
