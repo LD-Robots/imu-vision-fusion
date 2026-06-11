@@ -50,7 +50,9 @@ ekf_filter_node:
                   true,  true,  true,
                   false, false, false]
     imu0_differential: false
-    imu0_relative: false
+    # relative=true zeroes the startup orientation so the magnetic heading at boot doesn't
+    # rotate the trajectory relative to the VO's startup-aligned odom frame.
+    imu0_relative: true
     imu0_queue_size: 10
     imu0_remove_gravitational_acceleration: true   # only matters if accel is later enabled
     # If the IMU heading fights the VO, lower this to reject bad orientation updates.

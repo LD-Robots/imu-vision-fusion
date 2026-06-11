@@ -5,7 +5,8 @@
 # rgbd_odometry only outputs the nav_msgs/Odometry message on /vo/odom.
 rgbd_odometry:
   ros__parameters:
-    frame_id: camera_link        # frame the odometry is computed for (RealSense base frame)
+    frame_id: base_link          # report base_link odometry (rtabmap applies base->optical TF,
+                                 # so the camera mounting rotation/lever-arm is handled here)
     odom_frame_id: odom
     publish_tf: false
     publish_null_when_lost: true # emit a null odom on tracking loss so the EKF coasts cleanly
