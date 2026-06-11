@@ -30,8 +30,8 @@ def generate_launch_description():
             "enable_depth": "true",
             "enable_infra1": "false",
             "enable_infra2": "false",
-            "enable_gyro": "false",      # cam IMU unused
-            "enable_accel": "false",     # cam IMU unused
+            "enable_gyro": "true",      # cam IMU unused
+            "enable_accel": "true",     # cam IMU unused
             "pointcloud.enable": "false",
             # Modest profile that runs comfortably over USB3; lower if on USB2.
             "rgb_camera.color_profile": "640x480x30",

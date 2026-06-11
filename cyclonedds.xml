@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- CycloneDDS config for the fusion rig (loaded via CYCLONEDDS_URI in env.sh).
+
+     The WiFi AP drops wireless-to-wireless multicast, so discovery between the
+     laptop and the NUC fails with the default (multicast-only) SPDP. We add the
+     rig machines as unicast discovery peers; ParticipantIndex=auto is required
+     so each participant listens on a well-known port the peers can ping.
+
+     AllowMulticast=spdp keeps multicast discovery as a bonus path (it works
+     to/from the wired Jetson) but forces user data over unicast.
+
+     NOTE: peer addresses assume the 192.168.50.x LAN leases stay stable
+     (NUC .28, Jetson .150, laptop .25) - pin them in the router if they drift. -->
+<CycloneDDS xmlns="https://cdds.io/config">
+  <Domain id="any">
+    <General>
+      <AllowMulticast>spdp</AllowMulticast>
+    </General>
+    <Discovery>
+      <ParticipantIndex>auto</ParticipantIndex>
+      <MaxAutoParticipantIndex>32</MaxAutoParticipantIndex>
+      <Peers>
+        <Peer address="192.168.50.28"/>
+        <Peer address="192.168.50.150"/>
+        <Peer address="192.168.50.25"/>
+      </Peers>
+    </Discovery>
+  </Domain>
+</CycloneDDS>
