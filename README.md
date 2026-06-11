@@ -48,12 +48,27 @@ correct, the fused pose will be geometrically wrong even if topics flow.
 
 The Jetson USB-net link (`192.168.55.1`) must be up so `/pelvis/imu` is reachable.
 
+There are two camera variants — pick the one matching the attached camera:
+
 ```bash
 source env.sh                  # ROS_DOMAIN_ID=52 + Cyclone DDS + overlay
+
+# Intel RealSense D435i (mounted upside down -> camera transform has 180 deg roll):
 ros2 launch imu_vision_fusion_bringup bringup.launch.py
+
+# Orbbec Gemini 336L (mounted correctly -> identity camera transform):
+ros2 launch imu_vision_fusion_bringup bringup_orbbec.launch.py
 ```
 
-Camera-only smoke test: `ros2 launch imu_vision_fusion_bringup camera.launch.py`.
+The Orbbec variant needs its driver installed:
+```bash
+sudo apt install -y ros-jazzy-orbbec-camera ros-jazzy-orbbec-camera-msgs
+# install udev rules shipped with the package, then replug the camera.
+```
+
+Camera-only smoke tests: `camera.launch.py` (RealSense) or `camera_orbbec.launch.py` (Orbbec).
+Both bringups share the same `ekf.yaml`, `rgbd_odometry.yaml`, and the pelvis IMU transform;
+they differ only in the camera driver, the VO topic remaps, and the camera mounting rotation.
 
 ## 5. Verify
 
