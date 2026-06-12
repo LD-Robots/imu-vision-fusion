@@ -1,6 +1,6 @@
 # imu-vision-fusion
 
-Fuse the **pelvis BNO055 IMU** (`/pelvis/imu`, ROS_DOMAIN_ID 52, frame `pelvis_link`) with
+Fuse the **pelvis BNO055 IMU** (`/pelvis/imu`, ROS_DOMAIN_ID 62, frame `pelvis_link`) with
 **Intel RealSense D435i** RGB-D visual odometry into a single smoothed pose using a
 `robot_localization` EKF.
 
@@ -51,7 +51,7 @@ The Jetson USB-net link (`192.168.55.1`) must be up so `/pelvis/imu` is reachabl
 There are two camera variants — pick the one matching the attached camera:
 
 ```bash
-source env.sh                  # ROS_DOMAIN_ID=52 + Cyclone DDS + overlay
+source env.sh                  # ROS_DOMAIN_ID=62 + Cyclone DDS + overlay
 
 # Intel RealSense D435i (mounted upside down -> camera transform has 180 deg roll):
 ros2 launch imu_vision_fusion_bringup bringup.launch.py

@@ -4,7 +4,7 @@
 #
 #   source env.sh
 #
-export ROS_DOMAIN_ID=52
+export ROS_DOMAIN_ID=62
 export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 
 source /opt/ros/jazzy/setup.bash

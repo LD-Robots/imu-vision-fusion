@@ -4,7 +4,7 @@
   <name>imu_vision_fusion_bringup</name>
   <version>0.1.0</version>
   <description>
-    Config-only bringup for fusing the pelvis BNO055 IMU (/pelvis/imu, ROS_DOMAIN_ID 52)
+    Config-only bringup for fusing the pelvis BNO055 IMU (/pelvis/imu, ROS_DOMAIN_ID 62)
     with Intel RealSense D435i RGB-D visual odometry via a robot_localization EKF.
   </description>
   <maintainer email="andrei.dragomir@ldrobots.ro">Andrei Dragomir</maintainer>

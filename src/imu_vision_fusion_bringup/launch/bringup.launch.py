@@ -5,14 +5,14 @@ Pipeline:
         -> rgbd_odometry  -> /vo/odom  (nav_msgs/Odometry, publish_tf=false)
         -> ekf_filter_node (robot_localization)
              odom0 = /vo/odom   (body-frame linear velocity vx,vy,vz)
-             imu0  = /pelvis/imu (orientation + angular velocity, BNO055 on domain 52)
+             imu0  = /pelvis/imu (orientation + angular velocity, BNO055 on domain 62)
              => /odometry/filtered  +  tf odom -> base_link
 
 Static transforms (MEASURE THESE on the real rig and replace the zeros):
     base_link -> pelvis_link   (where the BNO055 is mounted)
     base_link -> camera_link   (where the RealSense is mounted)
 
-Run on ROS_DOMAIN_ID=52 so /pelvis/imu is visible (see env.sh).
+Run on ROS_DOMAIN_ID=62 so /pelvis/imu is visible (see env.sh).
 """
 import os
 from ament_index_python.packages import get_package_share_directory

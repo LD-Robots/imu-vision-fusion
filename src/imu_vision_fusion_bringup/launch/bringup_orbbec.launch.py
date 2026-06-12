@@ -5,7 +5,7 @@ Same pipeline as bringup.launch.py but with the Orbbec camera instead of the Rea
         -> rgbd_odometry  -> /vo/odom  (publish_tf=false)
         -> ekf_filter_node (robot_localization)
              odom0 = /vo/odom    (body-frame linear velocity vx,vy,vz)
-             imu0  = /pelvis/imu (orientation + angular velocity, BNO055 on domain 52)
+             imu0  = /pelvis/imu (orientation + angular velocity, BNO055 on domain 62)
              => /odometry/filtered  +  tf odom -> base_link
 
 Differences from the RealSense bringup:
@@ -14,7 +14,7 @@ Differences from the RealSense bringup:
   - base_link->camera_link is IDENTITY (camera mounted correctly; no 180 deg flip)
 
 The pelvis IMU transform is identical to the RealSense bringup.
-Run on ROS_DOMAIN_ID=52 so /pelvis/imu is visible (see env.sh).
+Run on ROS_DOMAIN_ID=62 so /pelvis/imu is visible (see env.sh).
 """
 import os
 from ament_index_python.packages import get_package_share_directory
