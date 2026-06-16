@@ -96,6 +96,18 @@ sudo apt install -y ros-jazzy-image-transport-plugins
 `debug:` parameter is a separate, very verbose **text-file dump** (`debug_out_file`), not a
 topic — leave it `false` for normal runs and only enable it for short offline filter debugging.
 
+### Foxglove
+
+Layouts live in `foxglove/`. In Foxglove, **Layouts → Import from file**:
+- `foxglove/imu_vision_fusion.json` — RealSense topics (`/camera/camera/...`)
+- `foxglove/imu_vision_fusion_orbbec.json` — Orbbec topics (`/camera/...`)
+
+The layout shows the compressed colour feed, a 3D view (tf tree + EKF/VO pose arrows in the
+`odom` frame), and plots of EKF-vs-VO linear velocity, pelvis-IMU angular velocity, EKF
+position drift, plus a `/diagnostics` summary. Works live (Open connection → ROS 2 /
+Foxglove bridge) or on a recorded bag (Open file). The two layouts differ only in the image
+topic, so if you switch cameras just point the Image panel at the other `.../color/image_raw/compressed`.
+
 ## 5. Verify
 
 ```bash

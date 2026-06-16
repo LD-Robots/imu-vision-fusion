@@ -2,19 +2,27 @@
 
 Thin wrapper around orbbec_camera's gemini_330_series launch. We enable
 depth_registration (D2C alignment, required so rgbd_odometry receives color-registered
-depth) and disable the camera's own IMU + pointcloud (the pelvis BNO055 owns orientation).
+depth) and disable the camera's pointcloud.
+
+The camera's built-in IMU is OFF by default (the pelvis BNO055 owns orientation). Pass
+enable_imu:=true to turn on the accel+gyro and publish a single synchronized
+sensor_msgs/Imu on /camera/imu -- used by bringup_orbbec_imu.launch.py.
 
 Default topic namespace (camera_name:=camera) yields:
     /camera/color/image_raw
     /camera/depth/image_raw          (aligned to color when depth_registration=true)
     /camera/color/camera_info
+    /camera/imu                      (only when enable_imu:=true)
 
-NOTE: the included launch file name can vary by orbbec_camera version. If it errors, list
-the available ones:  ls $(ros2 pkg prefix orbbec_camera)/share/orbbec_camera/launch/
+NOTE: the included launch file name and the IMU param names can vary by orbbec_camera
+version. If it errors, list the available launches:
+    ls $(ros2 pkg prefix orbbec_camera)/share/orbbec_camera/launch/
+and confirm the IMU topic after launch with:  ros2 topic list | grep imu
 """
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import LaunchConfiguration
 from ament_index_python.packages import get_package_share_directory
 import os
 
@@ -25,6 +33,12 @@ def generate_launch_description():
         "launch",
         "gemini_330_series.launch.py",
     )
+
+    enable_imu = DeclareLaunchArgument(
+        "enable_imu", default_value="false",
+        description="Enable the Orbbec built-in accel+gyro and publish /camera/imu.",
+    )
+    imu = LaunchConfiguration("enable_imu")
 
     orbbec = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(orbbec_launch),
@@ -41,9 +55,13 @@ def generate_launch_description():
             "enable_frame_sync": "true",
             "enable_point_cloud": "false",
             "enable_colored_point_cloud": "false",
-            "enable_accel": "false",             # cam IMU unused
-            "enable_gyro": "false",              # cam IMU unused
+            # Built-in IMU: tied to enable_imu. When on, publish ONE time-synced accel+gyro
+            # message on /camera/imu (sensor_msgs/Imu) instead of separate
+            # /camera/accel/sample + /camera/gyro/sample -- robot_localization needs one topic.
+            "enable_accel": imu,
+            "enable_gyro": imu,
+            "enable_sync_output_accel_gyro": imu,
         }.items(),
     )
 
-    return LaunchDescription([orbbec])
+    return LaunchDescription([enable_imu, orbbec])

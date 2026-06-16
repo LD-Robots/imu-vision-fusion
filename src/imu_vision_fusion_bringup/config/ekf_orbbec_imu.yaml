@@ -1,0 +1,83 @@
+# robot_localization EKF — fuse Orbbec visual odometry (velocity) + Orbbec built-in IMU
+# (orientation via imu_filter_madgwick + angular velocity).
+#
+# This is the ekf.yaml variant for bringup_orbbec_imu.launch.py. The ONLY differences from
+# ekf.yaml are the imu0 topic and the comments: the Orbbec Gemini 336L IMU is a RAW 6-axis
+# accel+gyro with NO onboard fusion (unlike the BNO055 IMUPLUS). bringup_orbbec_imu.launch.py
+# runs imu_filter_madgwick (use_mag=false) to turn /camera/imu into /camera/imu/filtered,
+# which carries a gravity-referenced roll/pitch + gyro-integrated (relative) yaw — the same
+# character the BNO055 provided. The fusion config below is therefore identical to ekf.yaml.
+#
+# State / config-vector order (15 elements):
+#   [ x,  y,  z,
+#     roll, pitch, yaw,
+#     vx, vy, vz,
+#     vroll, vpitch, vyaw,
+#     ax, ay, az ]
+#
+# Strategy:
+#   - odom0 (/vo/odom, rgbd_odometry): trust LINEAR VELOCITY vx,vy,vz only (body frame).
+#     Position is deliberately unobserved -- it drifts, but only velocity feeds the policy.
+#   - imu0 (/camera/imu/filtered, Orbbec IMU + madgwick): trust ORIENTATION + angular velocity.
+#   - Linear acceleration is OFF (raw-IMU accel is clean, but gravity removal needs a good
+#     orientation; enable later only if you need it).
+ekf_filter_node:
+  ros__parameters:
+    frequency: 100.0
+    sensor_timeout: 0.1
+    two_d_mode: false
+    # Extrapolate the published state to "now" instead of the last measurement stamp.
+    predict_to_current_time: true
+    # VO poses arrive stamped 30-100 ms in the past; re-insert them at the correct
+    # historical time and replay the filter forward.
+    smooth_lagged_data: true
+    history_length: 0.5
+    # Scale process noise with velocity: calm when standing, responsive when walking.
+    dynamic_process_noise_covariance: true
+    transform_time_offset: 0.0
+    transform_timeout: 0.0
+    print_diagnostics: true
+    debug: false
+
+    publish_tf: true
+    publish_acceleration: false
+
+    map_frame: map            # unused with a single EKF
+    odom_frame: odom
+    base_link_frame: base_link
+    world_frame: odom         # single EKF => world == odom (allowed to drift)
+
+    # --- Visual odometry: body-frame linear velocity only ---
+    # Twist is reported in child_frame_id (base_link), so it is immune to odom-frame
+    # alignment, startup yaw, and VO-reset position jumps.
+    odom0: /vo/odom
+    odom0_config: [false, false, false,
+                   false, false, false,
+                   true,  true,  true,
+                   false, false, false,
+                   false, false, false]
+    odom0_differential: false
+    odom0_relative: false
+    odom0_queue_size: 10
+    # Loosely reject large VO velocity spikes (texture-poor frames). Tune as needed.
+    odom0_twist_rejection_threshold: 5.0
+
+    # --- Orbbec IMU (madgwick-filtered): orientation + angular velocity ---
+    imu0: /camera/imu/filtered
+    imu0_config: [false, false, false,
+                  true,  true,  true,
+                  false, false, false,
+                  true,  true,  true,
+                  false, false, false]
+    imu0_differential: false
+    # relative=true zeroes the startup orientation so the gyro-integrated yaw at boot doesn't
+    # rotate the trajectory relative to the VO's startup-aligned odom frame.
+    imu0_relative: true
+    imu0_queue_size: 10
+    imu0_remove_gravitational_acceleration: true   # only matters if accel is later enabled
+    # Loose gate on purpose: a tight one rejects the large genuine tilts of
+    # stumbles/falls, which is exactly when orientation must be believed.
+    imu0_pose_rejection_threshold: 3.0
+
+    # Process noise / initial covariance: start from robot_localization defaults.
+    # Leave commented to use built-in defaults; tune here if the estimate is too stiff/loose.

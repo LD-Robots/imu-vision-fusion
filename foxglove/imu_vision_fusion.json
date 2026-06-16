@@ -1,0 +1,137 @@
+{
+  "configById": {
+    "Image!color": {
+      "imageMode": {
+        "imageTopic": "/camera/camera/color/image_raw/compressed",
+        "calibrationTopic": "/camera/camera/color/camera_info"
+      },
+      "synchronize": false
+    },
+    "3D!main": {
+      "followTf": "odom",
+      "followMode": "follow-none",
+      "scene": {
+        "transforms": {
+          "showLabel": true,
+          "axisScale": 0.5
+        }
+      },
+      "transforms": {},
+      "topics": {
+        "/odometry/filtered": {
+          "visible": true,
+          "type": "arrow",
+          "color": "#4caf50ff"
+        },
+        "/vo/odom": {
+          "visible": true,
+          "type": "arrow",
+          "color": "#2196f3ff"
+        }
+      },
+      "layers": {},
+      "cameraState": {
+        "distance": 8,
+        "perspective": true,
+        "phi": 55,
+        "thetaOffset": 45,
+        "targetOffset": [0, 0, 0],
+        "target": [0, 0, 0],
+        "targetOrientation": [0, 0, 0, 1],
+        "fovy": 45,
+        "near": 0.01,
+        "far": 5000
+      }
+    },
+    "Plot!vel": {
+      "title": "Linear velocity — EKF (filtered) vs VO (body frame)",
+      "paths": [
+        { "value": "/odometry/filtered.twist.twist.linear.x", "enabled": true, "timestampMethod": "receiveTime", "label": "ekf vx" },
+        { "value": "/odometry/filtered.twist.twist.linear.y", "enabled": true, "timestampMethod": "receiveTime", "label": "ekf vy" },
+        { "value": "/odometry/filtered.twist.twist.linear.z", "enabled": true, "timestampMethod": "receiveTime", "label": "ekf vz" },
+        { "value": "/vo/odom.twist.twist.linear.x", "enabled": true, "timestampMethod": "receiveTime", "label": "vo vx" },
+        { "value": "/vo/odom.twist.twist.linear.y", "enabled": true, "timestampMethod": "receiveTime", "label": "vo vy" },
+        { "value": "/vo/odom.twist.twist.linear.z", "enabled": true, "timestampMethod": "receiveTime", "label": "vo vz" }
+      ],
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "showLegend": true,
+      "legendDisplay": "floating",
+      "showPlotValuesInLegend": true,
+      "isSynced": true,
+      "xAxisVal": "timestamp",
+      "sidebarDimension": 240
+    },
+    "Plot!gyro": {
+      "title": "Pelvis IMU angular velocity (rad/s)",
+      "paths": [
+        { "value": "/pelvis/imu.angular_velocity.x", "enabled": true, "timestampMethod": "receiveTime", "label": "wx" },
+        { "value": "/pelvis/imu.angular_velocity.y", "enabled": true, "timestampMethod": "receiveTime", "label": "wy" },
+        { "value": "/pelvis/imu.angular_velocity.z", "enabled": true, "timestampMethod": "receiveTime", "label": "wz" }
+      ],
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "showLegend": true,
+      "legendDisplay": "floating",
+      "showPlotValuesInLegend": true,
+      "isSynced": true,
+      "xAxisVal": "timestamp",
+      "sidebarDimension": 240
+    },
+    "Plot!pos": {
+      "title": "EKF position (odom frame — expected to drift)",
+      "paths": [
+        { "value": "/odometry/filtered.pose.pose.position.x", "enabled": true, "timestampMethod": "receiveTime", "label": "x" },
+        { "value": "/odometry/filtered.pose.pose.position.y", "enabled": true, "timestampMethod": "receiveTime", "label": "y" },
+        { "value": "/odometry/filtered.pose.pose.position.z", "enabled": true, "timestampMethod": "receiveTime", "label": "z" }
+      ],
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "showLegend": true,
+      "legendDisplay": "floating",
+      "showPlotValuesInLegend": true,
+      "isSynced": true,
+      "xAxisVal": "timestamp",
+      "sidebarDimension": 240
+    },
+    "DiagnosticSummary!diag": {
+      "minLevel": 0,
+      "pinnedIds": [],
+      "hardwareIdFilter": "",
+      "topicToRender": "/diagnostics",
+      "sortByLevel": true,
+      "secondsUntilStale": 5
+    }
+  },
+  "globalVariables": {},
+  "userNodes": {},
+  "playbackConfig": {
+    "speed": 1
+  },
+  "layout": {
+    "direction": "row",
+    "first": "Image!color",
+    "second": {
+      "direction": "row",
+      "first": "3D!main",
+      "second": {
+        "direction": "column",
+        "first": "Plot!vel",
+        "second": {
+          "direction": "column",
+          "first": "Plot!gyro",
+          "second": {
+            "direction": "column",
+            "first": "Plot!pos",
+            "second": "DiagnosticSummary!diag",
+            "splitPercentage": 62
+          },
+          "splitPercentage": 50
+        },
+        "splitPercentage": 34
+      },
+      "splitPercentage": 48
+    },
+    "splitPercentage": 28
+  }
+}
