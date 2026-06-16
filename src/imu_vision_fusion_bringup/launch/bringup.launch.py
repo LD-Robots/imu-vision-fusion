@@ -15,11 +15,40 @@ Static transforms (MEASURE THESE on the real rig and replace the zeros):
 Run on ROS_DOMAIN_ID=62 so /pelvis/imu is visible (see env.sh).
 """
 import os
+import datetime
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
+from launch.actions import (
+    DeclareLaunchArgument,
+    ExecuteProcess,
+    IncludeLaunchDescription,
+    OpaqueFunction,
+    TimerAction,
+)
 from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
+
+
+def _rosbag_recorder(topics):
+    """OpaqueFunction that starts `ros2 bag record` for `topics` when record:=true.
+
+    Writes to a timestamped dir under bag_dir. Start is delayed a few seconds so the
+    camera's image_transport publishers are advertised before the recorder subscribes
+    (the /compressed topics are lazy / subscriber-driven)."""
+    def _start(context, *args, **kwargs):
+        if LaunchConfiguration("record").perform(context).lower() not in ("true", "1", "yes"):
+            return []
+        bag_dir = os.path.expanduser(LaunchConfiguration("bag_dir").perform(context))
+        stamp = datetime.datetime.now().strftime("%Y_%m_%d-%H_%M_%S")
+        bag_path = os.path.join(bag_dir, f"imu_vision_{stamp}")
+        return [TimerAction(period=3.0, actions=[
+            ExecuteProcess(
+                cmd=["ros2", "bag", "record", "-o", bag_path, *topics],
+                output="screen",
+            ),
+        ])]
+    return OpaqueFunction(function=_start)
 
 
 def generate_launch_description():
@@ -96,10 +125,37 @@ def generate_launch_description():
         ],
     )
 
+    # --- rosbag recording (record:=true by default; disable with record:=false) ---
+    # Compressed transports need ros-jazzy-image-transport-plugins installed.
+    record = DeclareLaunchArgument(
+        "record", default_value="true",
+        description="Record compressed video + fusion debug topics to a rosbag.",
+    )
+    bag_dir = DeclareLaunchArgument(
+        "bag_dir", default_value="~/imu_vision_bags",
+        description="Directory under which a timestamped bag (imu_vision_<ts>) is written.",
+    )
+    record_topics = [
+        # --- compressed video feed (RealSense nested /camera/camera namespace) ---
+        "/camera/camera/color/image_raw/compressed",                    # sensor_msgs/CompressedImage (JPEG)
+        "/camera/camera/aligned_depth_to_color/image_raw/compressedDepth",  # PNG depth; replays rgbd_odometry
+        "/camera/camera/color/camera_info",
+        "/camera/camera/aligned_depth_to_color/camera_info",
+        # --- fusion debug data ---
+        "/vo/odom",              # rgbd_odometry output
+        "/odometry/filtered",    # EKF output
+        "/pelvis/imu",           # BNO055 input
+        "/diagnostics",          # robot_localization diagnostics (print_diagnostics:=true)
+        "/tf", "/tf_static",
+    ]
+
     return LaunchDescription([
+        record,
+        bag_dir,
         camera,
         rgbd_odometry,
         ekf,
         tf_base_to_pelvis,
         tf_base_to_camera,
+        _rosbag_recorder(record_topics),
     ])

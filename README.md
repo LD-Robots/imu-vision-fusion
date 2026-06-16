@@ -70,6 +70,32 @@ Camera-only smoke tests: `camera.launch.py` (RealSense) or `camera_orbbec.launch
 Both bringups share the same `ekf.yaml`, `rgbd_odometry.yaml`, and the pelvis IMU transform;
 they differ only in the camera driver, the VO topic remaps, and the camera mounting rotation.
 
+### Recording
+
+Both bringups record a rosbag **by default** (`record:=true`) into a timestamped directory
+`~/imu_vision_bags/imu_vision_<timestamp>`. The bag captures the **compressed** video feed
+(JPEG colour + PNG `compressedDepth`, so the RGB-D pipeline can be replayed offline) plus the
+fusion debug topics: `/vo/odom`, `/odometry/filtered`, `/pelvis/imu`, `/diagnostics`, and tf.
+
+```bash
+# default: records to ~/imu_vision_bags/imu_vision_<ts>
+ros2 launch imu_vision_fusion_bringup bringup_orbbec.launch.py
+
+# disable recording, or change the destination
+ros2 launch imu_vision_fusion_bringup bringup_orbbec.launch.py record:=false
+ros2 launch imu_vision_fusion_bringup bringup_orbbec.launch.py bag_dir:=/data/runs
+```
+
+Compressed transports require the image_transport plugins (one-time):
+```bash
+sudo apt install -y ros-jazzy-image-transport-plugins
+```
+
+**robot_localization debug data:** the recorded `/diagnostics` topic (enabled by
+`print_diagnostics: true` in `ekf.yaml`) is the bag-friendly diagnostic stream. The EKF's
+`debug:` parameter is a separate, very verbose **text-file dump** (`debug_out_file`), not a
+topic — leave it `false` for normal runs and only enable it for short offline filter debugging.
+
 ## 5. Verify
 
 ```bash
