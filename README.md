@@ -58,7 +58,15 @@ ros2 launch imu_vision_fusion_bringup bringup.launch.py
 
 # Orbbec Gemini 336L (mounted correctly -> identity camera transform):
 ros2 launch imu_vision_fusion_bringup bringup_orbbec.launch.py
+
+# Orbbec + TORSO BNO055 instead of the pelvis one (orientation from /torso/imu):
+ros2 launch imu_vision_fusion_bringup bringup_orbbec_torso.launch.py
 ```
+
+The torso variant (`bringup_orbbec_torso.launch.py` + `config/ekf_torso.yaml`) is a drop-in
+swap of the orientation source: `imu0 = /torso/imu` (BNO055-class, frame `torso_link`,
+domain 62) and a `base_link -> torso_link` transform of `Ry(-pi/2)` (torso IMU: +X up,
++Y left, +Z back). Everything else matches `bringup_orbbec.launch.py`.
 
 The Orbbec variant needs its driver installed:
 ```bash
