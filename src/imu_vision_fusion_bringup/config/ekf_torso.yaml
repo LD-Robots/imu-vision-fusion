@@ -57,7 +57,7 @@ ekf_filter_node:
     odom0_relative: false
     odom0_queue_size: 10
     # Loosely reject large VO velocity spikes (texture-poor frames). Tune as needed.
-    odom0_twist_rejection_threshold: 5.0
+    odom0_twist_rejection_threshold: 1.0
 
     # --- BNO055 torso IMU: orientation + angular velocity ---
     imu0: /torso/imu
